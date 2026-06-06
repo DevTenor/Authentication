@@ -1,6 +1,6 @@
 ## Authenticaction service 🌱
 
-Service for client authorization and registration, written in Spring Boot.
+Client authorization and registration service, written in Spring Boot.
 
 > [!TIP]
 > You can run enitre application on local machine by address http://localhost:5173. Enough to execute docker compose file.
