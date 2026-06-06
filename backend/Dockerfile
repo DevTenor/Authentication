@@ -1,9 +1,14 @@
-FROM gradle:8.5-jdk21 AS build
+FROM gradle:8.14-jdk21 AS build
 
 WORKDIR /app
-COPY . .
 
-RUN gradle clean build -x test
+COPY gradlew .
+COPY gradle gradle
+COPY build.gradle settings.gradle ./
+COPY src src
+
+RUN chmod +x gradlew
+RUN ./gradlew clean build -x test
 
 FROM eclipse-temurin:21-jdk-alpine
 
