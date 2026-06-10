@@ -9,8 +9,4 @@ import lombok.Setter;
 @NoArgsConstructor
 public class JwtDto {
     private String jwtToken;
-
-    public JwtDto(String jwtToken) {
-        this.jwtToken = jwtToken;
-    }
 }

@@ -7,8 +7,9 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class UpdateProfileRequest {
+public class UpdateProfileDto {
     private String jwtToken;
+    private String username;
     private String firstName;
     private String lastName;
     private String email;

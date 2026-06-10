@@ -4,7 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import spring.authorization.segment.dto.income.JwtDto;
-import spring.authorization.segment.dto.outcome.UpdateProfileRequest;
+import spring.authorization.segment.dto.outcome.UpdateProfileDto;
 import spring.authorization.segment.dto.outcome.UserProfileDto;
 import spring.authorization.segment.entity.User;
 import spring.authorization.segment.repository.UserRepository;
@@ -13,6 +13,7 @@ import spring.authorization.segment.service.jwt.JWTService;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 public class UserDataController {
@@ -29,39 +30,49 @@ public class UserDataController {
 
     @PostMapping("/api/get_profile")
     public ResponseEntity getUserProfile(@RequestBody JwtDto jwtDto) {
-        Long userId = jwtService.getIdFromToken(jwtDto.getJwtToken());
+        UUID userId = jwtService.getIdFromToken(jwtDto.getJwtToken());
 
-        if (userId != null && userRepository.existsById(userId)) {
-            User user = userRepository.getUserById(userId);
-            UserProfileDto userProfileDto = new UserProfileDto(user.getEmail(), user.getFirstName(), user.getLastName(), user.getMobilePhone());
-            return ResponseEntity.ok().body(userProfileDto);
-        }
+        if (userId == null) {
+            return ResponseEntity.badRequest().body((Map.of("status", "error", "message", "Unable to get profile data. Invalid JWT token")));
+        } /* Guard Clauses */
 
-        return ResponseEntity.badRequest().body((Map.of("status", "error", "message", "user not found")));
+        if (!userRepository.existsById(userId)) {
+            return ResponseEntity.badRequest().body((Map.of("status", "error", "message", "Unable to get profile data. User not exists")));
+        } /* Guard Clauses */
+
+        User user = userRepository.getUserById(userId);
+        UserProfileDto userProfileDto = new UserProfileDto(user.getEmail(), user.getUsername(), user.getFirstName(), user.getLastName(), user.getMobilePhone());
+        return ResponseEntity.ok().body(userProfileDto);
+
     }
 
     @PostMapping("/api/update_profile")
-    public ResponseEntity updateProfile(@RequestBody UpdateProfileRequest updateProfileRequest) {
-        boolean result = userService.updateProfile(updateProfileRequest);
+    public ResponseEntity updateProfile(@RequestBody UpdateProfileDto updateProfileDto) {
+        int result = userService.updateProfile(updateProfileDto);
 
-        if (result) {
-            return ResponseEntity.ok((Map.of("status", "success", "message", "profile data updated")));
-        } else {
-            return ResponseEntity.badRequest().body(Map.of("status", "failed", "message", "failed to update profile data"));
+        switch (result) {
+            case 0: break;
+            case -1: return ResponseEntity.ok((Map.of("status", "failed", "problem", "user", "message", "Profile update failed. User not exists")));
+            case -2: return ResponseEntity.ok((Map.of("status", "failed", "problem", "jwt", "message", "Profile update failed. Invalid jwt token.")));
         }
+
+        return ResponseEntity.ok((Map.of("status", "success", "message", "Profile data updated")));
     }
 
     @Transactional
     @DeleteMapping("/api/account_remove")
     public ResponseEntity removeAccount(@RequestBody JwtDto jwtDto) {
-        Long userId = jwtService.getIdFromToken(jwtDto.getJwtToken());
-
-        if (userId != null && userRepository.existsById(userId)) {
-            userRepository.deleteById(userId);
-            return ResponseEntity.ok((Map.of("status", "success", "message", "account removed")));
+        UUID userId = jwtService.getIdFromToken(jwtDto.getJwtToken());
+        if (userId == null) {
+            return ResponseEntity.badRequest().body(Map.of("status", "failed", "problem", "jwt", "message", "Account removing operation failed. Incorrect jwt token"));
         }
 
-        return ResponseEntity.badRequest().body(Map.of("status", "failed", "message", "account removing operation failed"));
+        if (!userRepository.existsById(userId)) {
+            return ResponseEntity.badRequest().body(Map.of("status", "failed", "problem", "user", "message", "Account removing operation failed. User not exists"));
+        }
+
+        userRepository.deleteById(userId);
+        return ResponseEntity.ok((Map.of("status", "success", "message", "Account removed")));
     }
 
     @GetMapping("/api/users")

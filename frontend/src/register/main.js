@@ -2,71 +2,25 @@ import './style.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 
-async function main() {
-    renderLoader();
 
-    if (!await checkAuthorized()) {
-        renderLoginPage();
-    } else {
-        renderContent();
-    }
+async function main() {
+  renderLoader();
+
+  if (!await checkAuthorized()) {
+    renderRegisterPage();
+  } else {
+    allowAccess();
+  }
 }
 
-async function renderContent() {
+
+async function allowAccess() {
+    window.location.href = "/";
+}
+
+function renderRegisterPage() {
   const app = document.getElementById('app');
 
-  app.innerHTML = `
-                    <div class="logout"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M5.00065 6.66667L1.66732 10L5.00065 13.3333M1.66732 10H12.5007M7.50065 16.4966C8.56298 17.1348 9.79632 17.5 11.1117 17.5C15.1005 17.5 18.334 14.1421 18.334 10C18.334 5.85783 15.1005 2.5 11.1117 2.5C9.79632 2.5 8.56298 2.86525 7.50065 3.50333" stroke="black" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg><span class="ms-1">Log out</span></div>
-                    <div class="bd-example">
-                    <form class="row g-3 details">
-                    <div class="fs-5 fw-bold ps-0">Profile details</div>
-                    <hr class="m-0 mt-1">
-                    <div class="form-floating mb-3 col-md-12 ps-0">
-                    <input type="text" class="form-control" id="username">
-                    <label for="floatingInput">Username</label>
-                    </div>
-                    <div class="form-floating mb-3 col-md-6 ps-0">
-                    <input type="text" class="form-control" id="fname">
-                    <label for="floatingInput">First Name</label>
-                    </div>
-                    <div class="form-floating mb-3 col-md-6 ps-0 pe-0">
-                    <input type="text" class="form-control" id="lname">
-                    <label for="floatingInput">Last Name</label>
-                    </div>
-                    <div class="fs-5 fw-bold ps-0">Contact details</div>
-                    <hr class="m-0 mt-1">
-                    <div class="form-floating mb-3 col-md-6 ps-0">
-                    <input type="email" class="form-control" id="profile_email">
-                    <label for="floatingInput">Email</label>
-                    </div>
-                    <div class="form-floating mb-3 col-md-6 ps-0 pe-0">
-                    <input type="text" class="form-control" id="number">
-                    <label for="floatingInput">Mobile Phone</label>
-                    </div>
-
-                    <div class="col-12">
-                        <button type="button" id="update_btn" class="save btn btn-primary disabled">Save</button>
-                    </div>
-
-                    <hr class="mb-0 mt-5">
-                    <div class="delete-account--button"><span class="delete-account__text">Delete Account</span></div>
-                    </form>
-                    </div>`;
-
-
-  getUserData();
-  updateProfile();
-  changeSaveButtonState();
-  deleteProfile();
-  logOut();
-}
-
-function renderLoginPage() {
-    const app = document.getElementById('app');
-
-    
   app.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="d-none">
     <symbol id="check2" viewBox="0 0 16 16">
       <path
@@ -137,21 +91,19 @@ function renderLoginPage() {
       </li>
     </ul>
   </div>
-  <main class="form-login w-100 m-auto">
-    <form id="loginForm">
-      <h1 class="h3 fw-normal login_title">Log In</h1>
+  <main class="form-signup w-100 m-auto">
+    <form id="signUpForm">
+      <h1 class="h3 fw-normal sign_up_title">Create your account</h1>
       <div class="form-floating">
         <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com" />
         <label for="floatingInput">Email address</label>
       </div>
-
       <div class="form-floating">
         <input type="password" class="form-control" id="floatingPassword" placeholder="Password" />
         <label for="floatingPassword">Password</label>
       </div>
-
       <div class="d-grid gap-3">
-      <button type="submit" class="btn btn-primary w-100 py-2" id="login">
+      <button type="submit" class="btn btn-primary w-100 py-2" id="signup">
         Next
       </button>
 
@@ -172,7 +124,7 @@ function renderLoginPage() {
               <path fill="none" d="M0 0h48v48H0z"></path>
             </svg>
           </div>
-          <span class="gsi-material-button-contents">Login with Google</span>
+          <span class="gsi-material-button-contents">Sign up with Google</span>
         </div>
       </button>
 
@@ -192,100 +144,40 @@ function renderLoginPage() {
             </defs>
             </svg>
           </div>
-          <span class="gsi-material-button-contents">Login with GitHub</span>
+          <span class="gsi-material-button-contents">Sign up with GitHub</span>
         </div>
       </button>
       </div>
 
       <div class="d-flex align-items-center flex-row have_account">
         <figcaption class="figure-caption">
-          Don't have an account?
+          Already have an account?
         </figcaption>
         <button class="btn btn-link btn-sm rounded-pill px-3 ps-0" type="button"
-          onclick="window.location.href='/register/index.html'">Sign up</button>
+          onclick="window.location.href='/'">Sign in</button>
       </div>
     </form>
   </main>`;
 
-    changeTheme();
-    login();
+  changeTheme();
+  register();
 }
 
-async function login() {
-    const loginButton = document.getElementById('loginForm');
-    loginButton.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        const email = document.getElementById('floatingInput');
-        const password = document.getElementById('floatingPassword');
+async function register() {
+  const signupButton = document.getElementById('signUpForm');
+  signupButton.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const email = document.getElementById('floatingInput');
+    const password = document.getElementById('floatingPassword');
 
-        const inputText = email.value;
-        const passwordText = password.value;
-        const body = {
-            email: inputText,
-            password: passwordText
-        };
-
-        console.log(inputText, passwordText);
-
-        const responseBody = await fetch('http://localhost:8000/api/auth',
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(body),
-                credentials: "include"
-            }
-        )
-
-        const loginTitle = document.querySelector('.login_title');
-
-        const existedAlert = document.querySelector('[role="alert"]');
-        if (existedAlert) existedAlert.remove();
-
-        if (!responseBody.ok) {
-            const alert = `<div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                Account doesn't exist. Enter a different account or <a href="/" class="alert-link text-primary">get a new one.</a>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>`;
-            loginTitle.insertAdjacentHTML('afterend', alert);
-            throw new Error("Registration error");
-        }
-
-        const success = `<div class="alert alert-success alert-dismissible fade show" role="alert">
-                  Congratulations! You have successfully logged in.
-                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>`
-
-        loginTitle.insertAdjacentHTML('afterend', success);
-
-        const response = await responseBody.json();
-        localStorage.setItem("jwt", response.token);
-
-        await sleep(1000);
-
-        renderContent();
-    })
-}
-
-
-async function checkAuthorized() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const tokenFromUrl = urlParams.get("token");
-
-  if (tokenFromUrl) {
-    localStorage.setItem("jwt", tokenFromUrl);
-    window.history.replaceState({}, document.title, window.location.pathname);
-  }
-
-  const token = localStorage.getItem("jwt");
-  if (token === null || token === "") {
-    return false;
-  } else {
+    const inputText = email.value;
+    const passwordText = password.value;
     const body = {
-      jwtToken: token
-    }
-    const responseBody = await fetch('http://localhost:8000/api/validate_token',
+      email: inputText,
+      password: passwordText
+    };
+
+    const responseBody = await fetch('http://localhost:8000/api/register',
       {
         method: "POST",
         headers: {
@@ -294,66 +186,68 @@ async function checkAuthorized() {
         body: JSON.stringify(body),
         credentials: "include"
       }
-    );
+    )
+
+    const signupTitle = document.querySelector('.sign_up_title');
+
+    const existedAlert = document.querySelector('[role="alert"]');
+    if (existedAlert) existedAlert.remove();
 
     if (!responseBody.ok) {
-      return false;
+      const alert = `<div class="alert alert-warning alert-dismissible fade show" role="alert">
+                                A user with provided email already exists. Provide different email or <a href="/login/index.html" class="alert-link">login</a>
+                                to your account.
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>`;
+      signupTitle.insertAdjacentHTML('afterend', alert);
+      throw new Error("Registration error");
     }
 
-    return true;
-  }
+    const success = `<div class="alert alert-success alert-dismissible fade show" role="alert">
+                  Congratulations! You have successfully registered.
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>`
+
+    signupTitle.insertAdjacentHTML('afterend', success);
+
+    const response = await responseBody.json();
+    localStorage.setItem("jwt", response.token);
+
+    await sleep(1000);
+
+    allowAccess();
+  })
 }
 
+async function checkAuthorized() {
+    const token = localStorage.getItem("jwt");
+    if (token === null || token === "") {
+        return false;
+    } else {
+        const body = {
+            jwtToken: token
+        }
+        const responseBody = await fetch('http://localhost:8000/api/validate_token',
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(body),
+                credentials: "include"
+            }
+        );
 
-function changeTheme() {
-  const themeLight = document.getElementById('theme_light');
-  const themeDark = document.getElementById('theme_dark');
-  const themeAuto = document.getElementById('theme_auto');
-  const htmlEl = document.querySelector('html');
+        if (!responseBody.ok) {
+            return false;
+        }
 
-
-  themeLight.addEventListener('click', () => {
-      localStorage.setItem('theme', 'light');
-      themeAuto.classList.remove('active');
-      themeDark.classList.remove('active');
-      themeLight.classList.add('active');
-      htmlEl.setAttribute('data-bs-theme', 'light');
-  });
-
-  themeDark.addEventListener('click', () => {
-      localStorage.setItem('theme', 'dark');
-      themeAuto.classList.remove('active');
-      themeLight.classList.remove('active');
-      themeDark.classList.add('active');
-      htmlEl.setAttribute('data-bs-theme', 'dark');
-  });
-
-  themeAuto.addEventListener('click', () => {
-      localStorage.setItem('theme', 'auto');
-      themeLight.classList.remove('active');
-      themeDark.classList.remove('active');
-      themeAuto.classList.add('active');
-      htmlEl.setAttribute('data-bs-theme', 'auto');
-  });
-
-  if (localStorage.getItem('theme') === 'light') {
-      themeAuto.classList.remove('active');
-      themeDark.classList.remove('active');
-      themeLight.classList.add('active');
-      htmlEl.setAttribute('data-bs-theme', 'light');
-  } else if (localStorage.getItem('theme') === 'dark') {
-      themeAuto.classList.remove('active');
-      themeLight.classList.remove('active');
-      themeDark.classList.add('active');
-      htmlEl.setAttribute('data-bs-theme', 'dark');
-  } else if (localStorage.getItem('theme') === 'auto') {
-      themeLight.classList.remove('active');
-      themeDark.classList.remove('active');
-      themeAuto.classList.add('active');
-      htmlEl.setAttribute('data-bs-theme', 'auto');
-  }
+        const response = responseBody.json();
+        console.log("status: " + response.status);
+        console.log("message: " + response.message);
+        return true;
+    }
 }
-
 
 async function getUserData() {
   const token = localStorage.getItem("jwt");
@@ -530,8 +424,57 @@ async function deleteProfile() {
   })
 }
 
+function changeTheme() {
+  const themeLight = document.getElementById('theme_light');
+  const themeDark = document.getElementById('theme_dark');
+  const themeAuto = document.getElementById('theme_auto');
+  const htmlEl = document.querySelector('html');
+
+
+  themeLight.addEventListener('click', () => {
+      localStorage.setItem('theme', 'light');
+      themeAuto.classList.remove('active');
+      themeDark.classList.remove('active');
+      themeLight.classList.add('active');
+      htmlEl.setAttribute('data-bs-theme', 'light');
+  });
+
+  themeDark.addEventListener('click', () => {
+      localStorage.setItem('theme', 'dark');
+      themeAuto.classList.remove('active');
+      themeLight.classList.remove('active');
+      themeDark.classList.add('active');
+      htmlEl.setAttribute('data-bs-theme', 'dark');
+  });
+
+  themeAuto.addEventListener('click', () => {
+      localStorage.setItem('theme', 'auto');
+      themeLight.classList.remove('active');
+      themeDark.classList.remove('active');
+      themeAuto.classList.add('active');
+      htmlEl.setAttribute('data-bs-theme', 'auto');
+  });
+
+  if (localStorage.getItem('theme') === 'light') {
+      themeAuto.classList.remove('active');
+      themeDark.classList.remove('active');
+      themeLight.classList.add('active');
+      htmlEl.setAttribute('data-bs-theme', 'light');
+  } else if (localStorage.getItem('theme') === 'dark') {
+      themeAuto.classList.remove('active');
+      themeLight.classList.remove('active');
+      themeDark.classList.add('active');
+      htmlEl.setAttribute('data-bs-theme', 'dark');
+  } else if (localStorage.getItem('theme') === 'auto') {
+      themeLight.classList.remove('active');
+      themeDark.classList.remove('active');
+      themeAuto.classList.add('active');
+      htmlEl.setAttribute('data-bs-theme', 'auto');
+  }
+}
+
 function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 main();

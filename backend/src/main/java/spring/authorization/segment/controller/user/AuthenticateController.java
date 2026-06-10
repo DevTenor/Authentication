@@ -11,6 +11,7 @@ import spring.authorization.segment.service.UserService;
 import spring.authorization.segment.service.jwt.JWTService;
 
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 public class AuthenticateController {
@@ -31,11 +32,17 @@ public class AuthenticateController {
         String input = userDto.getEmail();
         String password = userDto.getPassword();
 
-        if (!(userService.register(input, password))) {
-            return ResponseEntity.badRequest().body(Map.of("status", "failed", "message", "User already exists in database"));
-        }
+        switch (userService.register(input, password)) {
+            case 0: break;
+            case -1: return ResponseEntity.badRequest().body(Map.of("status", "failed", "problem", "existence", "message", "User already registered"));
+            case -2: return ResponseEntity.badRequest().body(Map.of("status", "failed", "problem", "password", "message", "Incorrect password format"));
+            case -3: return ResponseEntity.badRequest().body(Map.of("status", "failed", "problem", "email", "message", "Incorrect email format"));
+            default: return ResponseEntity.badRequest().body(Map.of("status", "failed", "problem", "unspecified", "message", "Unable to register user"));
+        } /* Guard Clauses */
 
-        String JwtToken = jwtService.generateToken(userRepository.getUserByEmail(input).getId());
+        UUID userId = userRepository.getUserByEmail(input).getId();
+
+        String JwtToken = jwtService.generateToken(userId);
 
         return ResponseEntity.ok(Map.of("token", JwtToken));
     }
@@ -46,12 +53,12 @@ public class AuthenticateController {
         String password = userDto.getPassword();
 
         if (!(userRepository.existsByEmail(input))) {
-            return ResponseEntity.badRequest().body(Map.of("status", "failed", "message", "user not registered"));
+            return ResponseEntity.badRequest().body(Map.of("status", "failed", "message", "User not registered"));
         }
 
         String savedEncodedPassword = userRepository.getUserByEmail(input).getEncodedPassword();
         if (!(userService.matches(password, savedEncodedPassword))) {
-            return ResponseEntity.badRequest().body(Map.of("status", "failed", "message", "access denied"));
+            return ResponseEntity.badRequest().body(Map.of("status", "failed", "message", "Access denied"));
         }
 
         return ResponseEntity.ok(Map.of("token", jwtService.generateToken(userRepository.getUserByEmail(input).getId())));
@@ -61,9 +68,9 @@ public class AuthenticateController {
     public ResponseEntity validateJwt(@RequestBody JwtDto jwtDto) {
 
         if (jwtService.validateToken(jwtDto.getJwtToken())) {
-            return ResponseEntity.ok(Map.of("status", "success", "message", "access granted"));
+            return ResponseEntity.ok(Map.of("status", "success", "message", "Access granted"));
         } else {
-            return ResponseEntity.badRequest().body(Map.of("status", "failed", "message", "access denied"));
+            return ResponseEntity.badRequest().body(Map.of("status", "failed", "message", "Access denied"));
         }
     }
 }

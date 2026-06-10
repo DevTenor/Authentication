@@ -11,12 +11,14 @@ import java.util.Date;
 @NoArgsConstructor
 public class UserProfileDto {
     String email;
+    String username;
     String firstName;
     String lastName;
     String mobilePhone;
 
-    public UserProfileDto(String email, String firstName,  String lastName, String mobilePhone) {
+    public UserProfileDto(String email, String username, String firstName, String lastName, String mobilePhone) {
         this.email = email;
+        this.username = username;
         this.firstName = firstName;
         this.lastName = lastName;
         this.mobilePhone = mobilePhone;

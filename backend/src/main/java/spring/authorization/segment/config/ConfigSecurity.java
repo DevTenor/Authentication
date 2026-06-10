@@ -29,11 +29,39 @@ public class ConfigSecurity {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(csrf -> csrf.disable());
+                .csrf(csrf -> csrf.disable())
+
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/validate_token",
+                                "/api/auth",
+                                "/api/register",
+                                "/api/users",
+                                "/api/get_profile",
+                                "/api/update_profile",
+                                "/api/account_remove",
+                                "/api/google_profile",
+                                "/login/**",
+                                "/oauth2/**",
+                                "/error").permitAll()
+                        .anyRequest().authenticated()
+                )
+
+                .oauth2Login(oauth2 -> oauth2
+                                .defaultSuccessUrl("/api/oauth2/success", true)
+                                .failureUrl("/login")
+                );
 
         return http.build();
+    }
+
+    @Bean
+    public HttpFirewall allowUrlEncodedSlashHttpFirewall() {
+        StrictHttpFirewall firewall = new StrictHttpFirewall();
+        firewall.setAllowUrlEncodedDoubleSlash(true); // Allow double slash
+        firewall.setAllowUrlEncodedPercent(true);
+        return firewall;
     }
 }

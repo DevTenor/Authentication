@@ -6,23 +6,25 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.util.Date;
+import java.util.UUID;
 
-@Table(name="users")
-@NamedQuery(
-        name="users.getUserIdByEmail",
-        query="SELECT u.id FROM User u WHERE u.email = :email"
-)
 @Getter
 @Setter
 @Entity
+@Table(name="users")
 public class User {
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy= GenerationType.UUID)
+    @Column(columnDefinition = "UUID")
+    private UUID id;
+    @Version
+    private Long version = 0L;
     @Column(name = "email", unique = true)
     private String email;
     @Column(name = "encoded_password")
     private String encodedPassword;
+    @Column(name = "username")
+    private String username;
     @Column(name = "first_name")
     private String firstName;
     @Column(name = "last_name")

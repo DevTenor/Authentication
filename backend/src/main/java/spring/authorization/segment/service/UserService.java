@@ -2,12 +2,13 @@ package spring.authorization.segment.service;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import spring.authorization.segment.dto.outcome.UpdateProfileRequest;
+import spring.authorization.segment.dto.outcome.UpdateProfileDto;
 import spring.authorization.segment.entity.User;
 import spring.authorization.segment.repository.UserRepository;
 import spring.authorization.segment.service.jwt.JWTService;
 
 import java.util.List;
+import java.util.UUID;
 
 @Component
 public class UserService {
@@ -22,12 +23,12 @@ public class UserService {
         this.jwtService = jwtService;
     }
 
-    public boolean register(String email, String password) {
-        User user = new User();
-        if (userRepository.existsByEmail(email)) {
-            return false;
-        }
+    public int register(String email, String password) {
+        if (email == null || email.isBlank()) return -3; /* Guard Clauses */
+        if (password == null || password.isBlank()) return -2; /* Guard Clauses */
+        if (userRepository.existsByEmail(email)) return -1;  /* Guard Clauses */
 
+        User user = new User();
         user.setEmail(email);
 
         String hashed = passwordEncoder.encode(password);
@@ -35,7 +36,7 @@ public class UserService {
 
         userRepository.save(user);
 
-        return true;
+        return 0;
     }
 
     public boolean matches(String rawPassword, String storedPassword) {
@@ -46,19 +47,19 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public boolean updateProfile(UpdateProfileRequest updateProfileRequest) {
-        Long userId = jwtService.getIdFromToken(updateProfileRequest.getJwtToken());
-        if (userId == null) return false;
-        if (userRepository.existsById(userId)) {
-            User user = userRepository.getUserById(userId);
-            user.setEmail(updateProfileRequest.getEmail());
-            user.setFirstName(updateProfileRequest.getFirstName());
-            user.setLastName(updateProfileRequest.getLastName());
-            user.setMobilePhone(updateProfileRequest.getMobilePhone());
-            userRepository.save(user);
-            return true;
-        } else {
-            return false;
-        }
+    public int updateProfile(UpdateProfileDto updateProfileDto) {
+        UUID userId = jwtService.getIdFromToken(updateProfileDto.getJwtToken());
+        if (userId == null) return -2; /* Guard Clauses */
+
+        User user = userRepository.getUserById(userId);
+        if (user == null) return -1; /* Guard Clauses */
+
+        user.setEmail(updateProfileDto.getEmail());
+        user.setUsername(updateProfileDto.getUsername());
+        user.setFirstName(updateProfileDto.getFirstName());
+        user.setLastName(updateProfileDto.getLastName());
+        user.setMobilePhone(updateProfileDto.getMobilePhone());
+        userRepository.save(user);
+        return 0;
     }
 }

@@ -27,12 +27,11 @@ public class JWTService {
     private final String SECRET_STRING = "342bd5191271245897143a316e277feeda5f3c276608e0039a2cd79e29ffe037";
     private final SecretKey key = Keys.hmacShaKeyFor(SECRET_STRING.getBytes(StandardCharsets.UTF_8));
 
-    public String generateToken(Long userId) {
+    public String generateToken(UUID userId) {
     long nowMillis = System.currentTimeMillis();
 
         return Jwts.builder()
                 .setSubject(userId.toString())
-                .setId(UUID.randomUUID().toString())
                 .setIssuedAt(new Date(nowMillis))
                 .setExpiration(new Date(nowMillis + 3600000))
                 .signWith(key)
@@ -42,16 +41,16 @@ public class JWTService {
     public boolean validateToken(String token) {
         if (token.isEmpty()) {
             return false;
-        }
+        } /* Guard Clauses */
 
         try {
-            Claims claims =  Jwts.parserBuilder()
+            Claims claims = Jwts.parserBuilder()
                     .setSigningKey(key)
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
 
-            Long userId = Long.parseLong(claims.getSubject());
+            UUID userId = UUID.fromString(claims.getSubject());
 
             return userRepository.existsById(userId);
 
@@ -60,19 +59,19 @@ public class JWTService {
         }
     }
 
-    public Long getIdFromToken(String token) {
+    public UUID getIdFromToken(String token) {
         if (token.isEmpty()) {
             return null;
-        }
+        } /* Guard Clauses */
 
         try {
-            Claims claims =  Jwts.parserBuilder()
+            Claims claims = Jwts.parserBuilder()
                     .setSigningKey(key)
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
 
-            return Long.parseLong(claims.getSubject());
+            return UUID.fromString(claims.getSubject());
 
         } catch (JwtException | IllegalArgumentException e) {
             return null;
