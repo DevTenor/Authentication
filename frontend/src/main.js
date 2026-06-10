@@ -408,12 +408,17 @@ async function renderLoader() {
 }
 
 function changeSaveButtonState() {
+  const username = document.getElementById('username');
   const fname = document.getElementById('fname');
   const lname = document.getElementById('lname');
   const profile_email = document.getElementById('profile_email');
   const number = document.getElementById('number');
 
   const button = document.getElementById('update_btn');
+
+  username.addEventListener('input', () => {
+    button.classList.remove('disabled');
+  });
 
   fname.addEventListener('input', () => {
     button.classList.remove('disabled');
@@ -433,6 +438,7 @@ function changeSaveButtonState() {
 }
 
 async function updateProfile() {
+  const username = document.getElementById('username');
   const fname = document.getElementById('fname');
   const lname = document.getElementById('lname');
   const profile_email = document.getElementById('profile_email');
@@ -444,6 +450,7 @@ async function updateProfile() {
       const token = localStorage.getItem('jwt');
       const body = {
         jwtToken: token,
+        username: username.value,
         firstName: fname.value,
         lastName: lname.value,
         email: profile_email.value,
@@ -462,7 +469,7 @@ async function updateProfile() {
       button.classList.add('disabled');
 
       const alertSuccess = `<div class="alert_saved_data bd-example m-0 border-0"><div class="alert alert-primary alert-dismissible fade show" role="alert">
-                  Changes to your profile have been saved!
+                  Changes saved to profile.
                   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
       </div>`;
@@ -471,7 +478,7 @@ async function updateProfile() {
       const alertEl = document.querySelector('.alert_saved_data');
 
       (async () => {
-        await sleep(3000);
+        await sleep(1000);
 
         if (alertEl) {
           const innerAlert = alertEl.querySelector('.alert');

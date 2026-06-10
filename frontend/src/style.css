@@ -301,7 +301,7 @@ body {
   margin-top: 2rem;
 }
 
-.loginForm {
+#loginForm {
   width: 250px;
 }
 
